@@ -356,7 +356,7 @@ Do not generate long paragraphs.
 
     mode=""
 
-    for line in content.split("
+    for line in content.split("\\n"):
 "):
 
         low=line.lower()
