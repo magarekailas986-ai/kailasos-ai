@@ -7,135 +7,154 @@ app = Flask(__name__)
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 HTML = """
+
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>KailasOS AI</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 
 body{
-    margin:0;
-    padding:20px;
-    background:#020617;
-    color:white;
-    font-family:Arial;
-    text-align:center;
+background:#020b24;
+font-family:Arial;
+color:white;
+padding:20px;
+margin:0;
 }
 
-h1{
-    font-size:60px;
-    background:linear-gradient(90deg,#00e5ff,#7c3aed);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    margin-top:20px;
+.title{
+font-size:60px;
+font-weight:bold;
+text-align:center;
+background:linear-gradient(90deg,#00d4ff,#8b5cf6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+margin-top:40px;
 }
 
 .subtitle{
-    font-size:20px;
-    color:#cbd5e1;
-    margin-bottom:30px;
+text-align:center;
+font-size:22px;
+color:#d1d5db;
+margin-top:20px;
+margin-bottom:40px;
 }
 
-.container{
-    max-width:850px;
-    margin:auto;
-    background:#0f172a;
-    padding:25px;
-    border-radius:25px;
-    box-shadow:0 0 40px rgba(0,255,255,0.15);
+.box{
+background:#08122e;
+padding:30px;
+border-radius:30px;
+box-shadow:0 0 25px rgba(0,255,255,0.2);
+max-width:700px;
+margin:auto;
 }
 
 input, textarea{
-    width:90%;
-    padding:18px;
-    margin:15px 0;
-    border:none;
-    border-radius:15px;
-    background:#111827;
-    color:white;
-    font-size:18px;
-    outline:none;
+width:100%;
+background:#0f172a;
+border:none;
+border-radius:20px;
+padding:20px;
+font-size:22px;
+color:white;
+margin-bottom:20px;
+box-sizing:border-box;
+}
+
+textarea{
+height:200px;
+resize:none;
 }
 
 button{
-    padding:18px 40px;
-    border:none;
-    border-radius:15px;
-    font-size:22px;
-    font-weight:bold;
-    color:white;
-    cursor:pointer;
-    background:linear-gradient(90deg,#00e5ff,#d400ff);
-    transition:0.3s;
+width:100%;
+padding:22px;
+border:none;
+border-radius:20px;
+font-size:22px;
+font-weight:bold;
+color:white;
+cursor:pointer;
+background:linear-gradient(90deg,#22d3ee,#d946ef);
 }
 
 button:hover{
-    transform:scale(1.05);
+opacity:0.9;
 }
 
-.loading{
-    margin-top:20px;
-    font-size:22px;
-    color:#00e5ff;
+.result-box{
+background:#08122e;
+padding:25px;
+border-radius:25px;
+margin-top:25px;
+box-shadow:0 0 20px rgba(0,255,255,0.15);
 }
 
-.card{
-    background:#111827;
-    margin-top:25px;
-    padding:20px;
-    border-radius:20px;
-    text-align:left;
-    box-shadow:0 0 20px rgba(0,255,255,0.1);
-}
-
-.card h2{
-    color:#00e5ff;
+.result-title{
+font-size:22px;
+font-weight:bold;
+margin-bottom:15px;
+color:#00d4ff;
 }
 
 .copy-btn{
-    margin-top:15px;
-    padding:10px 20px;
-    border:none;
-    border-radius:10px;
-    background:#7c3aed;
-    color:white;
-    cursor:pointer;
+margin-top:15px;
+padding:12px 20px;
+border:none;
+border-radius:12px;
+background:#7c3aed;
+color:white;
+font-size:18px;
+cursor:pointer;
 }
 
 .footer{
-    margin-top:40px;
-    color:#94a3b8;
+text-align:center;
+margin-top:50px;
+font-size:18px;
+color:#d1d5db;
+}
+
+.loading{
+text-align:center;
+font-size:24px;
+margin-top:20px;
+color:#00ffff;
+display:none;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<h1>KailasOS AI</h1>
+<div class="title">KailasOS AI</div>
 
 <div class="subtitle">
 Generate Viral Captions, Hooks, Hashtags & Bios 🚀
 </div>
 
-<div class="container">
+<div class="box">
 
-<input type="text" id="category" placeholder="Enter category">
+<input type="text" id="topic" placeholder="Enter Topic">
 
-<textarea id="prompt" rows="6" placeholder="Describe what you want..."></textarea>
-
-<br>
+<textarea id="prompt" placeholder="Describe what you want..."></textarea>
 
 <button onclick="generateContent()">
 Generate AI Content
 </button>
 
-<div class="loading" id="loading"></div>
+<div class="loading" id="loading">
+Generating Viral Content... 🚀
+</div>
 
-<div id="result"></div>
+<div id="results"></div>
 
 </div>
 
@@ -145,84 +164,76 @@ Powered By KailasOS AI ⚡
 
 <script>
 
-function copyText(text){
-    navigator.clipboard.writeText(text);
-    alert("Copied!");
-}
-
 async function generateContent(){
 
-    document.getElementById("loading").innerHTML =
-    "Generating Viral Content... 🚀";
+let topic = document.getElementById("topic").value;
+let prompt = document.getElementById("prompt").value;
 
-    document.getElementById("result").innerHTML = "";
+document.getElementById("loading").style.display = "block";
 
-    let category =
-    document.getElementById("category").value;
+let response = await fetch("/generate",{
 
-    let prompt =
-    document.getElementById("prompt").value;
+method:"POST",
 
-    let response = await fetch("/generate",{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-            category:category,
-            prompt:prompt
-        })
-    });
+headers:{
+"Content-Type":"application/json"
+},
 
-    let data = await response.json();
+body:JSON.stringify({
+topic:topic,
+prompt:prompt
+})
 
-    document.getElementById("loading").innerHTML = "";
+});
 
-    document.getElementById("result").innerHTML = `
-    
-    <div class="card">
-        <h2>🔥 Viral Caption</h2>
-        <p>${data.caption}</p>
-        <button class="copy-btn"
-        onclick="copyText(\`${data.caption}\`)">
-        Copy
-        </button>
-    </div>
+let data = await response.json();
 
-    <div class="card">
-        <h2>🎯 Hook</h2>
-        <p>${data.hook}</p>
-        <button class="copy-btn"
-        onclick="copyText(\`${data.hook}\`)">
-        Copy
-        </button>
-    </div>
+document.getElementById("loading").style.display = "none";
 
-    <div class="card">
-        <h2>🏷️ Hashtags</h2>
-        <p>${data.hashtags}</p>
-        <button class="copy-btn"
-        onclick="copyText(\`${data.hashtags}\`)">
-        Copy
-        </button>
-    </div>
+document.getElementById("results").innerHTML = `
 
-    <div class="card">
-        <h2>👤 Bio</h2>
-        <p>${data.bio}</p>
-        <button class="copy-btn"
-        onclick="copyText(\`${data.bio}\`)">
-        Copy
-        </button>
-    </div>
+<div class="result-box">
+<div class="result-title">🔥 Viral Caption</div>
+<div>${data.caption}</div>
+<button class="copy-btn" onclick="copyText(\`${data.caption}\`)">Copy</button>
+</div>
 
-    `;
+<div class="result-box">
+<div class="result-title">🎯 Hook</div>
+<div>${data.hook}</div>
+<button class="copy-btn" onclick="copyText(\`${data.hook}\`)">Copy</button>
+</div>
+
+<div class="result-box">
+<div class="result-title">🏷️ Hashtags</div>
+<div>${data.hashtags}</div>
+<button class="copy-btn" onclick="copyText(\`${data.hashtags}\`)">Copy</button>
+</div>
+
+<div class="result-box">
+<div class="result-title">👤 Bio</div>
+<div>${data.bio}</div>
+<button class="copy-btn" onclick="copyText(\`${data.bio}\`)">Copy</button>
+</div>
+
+`;
+
+}
+
+function copyText(text){
+
+navigator.clipboard.writeText(text);
+
+alert("Copied Successfully 🚀");
+
 }
 
 </script>
 
 </body>
+
 </html>
+
 """
 
 @app.route("/")
@@ -234,109 +245,106 @@ def generate():
 
     data = request.json
 
-    category = data.get("category","")
-    prompt = data.get("prompt","")
+    topic = data["topic"]
+    prompt = data["prompt"]
 
-    final_prompt = f'''
-    Category: {category}
+    final_prompt = f"""
 
-    User Request:
-    {prompt}
+Topic: {topic}
 
-    Give response in EXACT format:
+User Request:
+{prompt}
 
-    Caption:
-    ...
+Create:
 
-    Hook:
-    ...
+1 Viral Caption
+1 Hook
+1 Hashtags section
+1 Instagram Bio
 
-    Hashtags:
-    ...
+Format exactly like this:
 
-    Bio:
-    ...
-    '''
+Caption:
+...
+
+Hook:
+...
+
+Hashtags:
+...
+
+Bio:
+...
+
+"""
 
     response = requests.post(
-        url="https://openrouter.ai/api/v1/chat/completions",
+
+        "https://openrouter.ai/api/v1/chat/completions",
+
         headers={
+
             "Authorization": f"Bearer {API_KEY}",
-            "Content-Type":"application/json"
+            "Content-Type": "application/json"
+
         },
+
         json={
-            "model":"openai/gpt-3.5-turbo",
-            "messages":[
+
+            "model": "openai/gpt-3.5-turbo",
+
+            "messages": [
+
                 {
-                    "role":"user",
-                    "content":final_prompt
+                    "role": "user",
+                    "content": final_prompt
                 }
+
             ]
+
         }
+
     )
 
     result = response.json()
 
     print(result)
 
-    if "choices" in result:
+    text = result["choices"][0]["message"]["content"]
 
-        text = result["choices"][0]["message"]["content"]
+    caption = ""
+    hook = ""
+    hashtags = ""
+    bio = ""
 
-        caption = ""
-        hook = ""
-        hashtags = ""
-        bio = ""
+    try:
 
-        parts = text.split("\\n")
+        part1 = text.split("Hook:")
+        caption = part1[0].replace("Caption:", "").strip()
 
-        current = ""
+        part2 = part1[1].split("Hashtags:")
+        hook = part2[0].strip()
 
-        for line in parts:
+        part3 = part2[1].split("Bio:")
+        hashtags = part3[0].strip()
 
-            if "Caption:" in line:
-                current = "caption"
-                continue
+        bio = part3[1].strip()
 
-            elif "Hook:" in line:
-                current = "hook"
-                continue
+    except:
 
-            elif "Hashtags:" in line:
-                current = "hashtags"
-                continue
+        caption = text
+        hook = text
+        hashtags = text
+        bio = text
 
-            elif "Bio:" in line:
-                current = "bio"
-                continue
+    return jsonify({
 
-            if current == "caption":
-                caption += line + " "
+        "caption": caption,
+        "hook": hook,
+        "hashtags": hashtags,
+        "bio": bio
 
-            elif current == "hook":
-                hook += line + " "
-
-            elif current == "hashtags":
-                hashtags += line + " "
-
-            elif current == "bio":
-                bio += line + " "
-
-        return jsonify({
-            "caption": caption,
-            "hook": hook,
-            "hashtags": hashtags,
-            "bio": bio
-        })
-
-    else:
-
-        return jsonify({
-            "caption":"API Error",
-            "hook":"API Error",
-            "hashtags":str(result),
-            "bio":"API Error"
-        })
+    })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0")
