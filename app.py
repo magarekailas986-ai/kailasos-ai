@@ -20,50 +20,54 @@ HTML = """
 <style>
 
 body{
-background:#020b24;
+background:#020617;
 font-family:Arial;
-color:white;
-padding:20px;
 margin:0;
+padding:20px;
+color:white;
 }
 
 .title{
 font-size:60px;
 font-weight:bold;
 text-align:center;
-background:linear-gradient(90deg,#00d4ff,#8b5cf6);
+margin-top:30px;
+
+background:linear-gradient(90deg,#00e5ff,#8b5cf6);
+
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
-margin-top:40px;
 }
 
 .subtitle{
 text-align:center;
 font-size:22px;
-color:#d1d5db;
 margin-top:20px;
 margin-bottom:40px;
+color:#cbd5e1;
 }
 
-.box{
+.main-box{
 background:#08122e;
 padding:30px;
 border-radius:30px;
-box-shadow:0 0 25px rgba(0,255,255,0.2);
-max-width:700px;
+max-width:800px;
 margin:auto;
+box-shadow:0 0 30px rgba(0,255,255,0.15);
 }
 
 input, textarea{
+
 width:100%;
-background:#0f172a;
+padding:20px;
 border:none;
 border-radius:20px;
-padding:20px;
-font-size:22px;
+background:#0f172a;
 color:white;
+font-size:20px;
 margin-bottom:20px;
 box-sizing:border-box;
+outline:none;
 }
 
 textarea{
@@ -72,60 +76,73 @@ resize:none;
 }
 
 button{
+
 width:100%;
-padding:22px;
+padding:20px;
 border:none;
 border-radius:20px;
 font-size:22px;
 font-weight:bold;
-color:white;
 cursor:pointer;
-background:linear-gradient(90deg,#22d3ee,#d946ef);
+color:white;
+
+background:linear-gradient(
+90deg,
+#06b6d4,
+#8b5cf6
+);
+
 }
 
 button:hover{
 opacity:0.9;
 }
 
-.result-box{
-background:#08122e;
+.loading{
+display:none;
+text-align:center;
+margin-top:20px;
+font-size:22px;
+color:#00ffff;
+}
+
+.card{
+
+background:#0f172a;
 padding:25px;
 border-radius:25px;
 margin-top:25px;
-box-shadow:0 0 20px rgba(0,255,255,0.15);
+
+box-shadow:
+0 0 20px rgba(0,255,255,0.08);
 }
 
-.result-title{
-font-size:22px;
+.card-title{
+
+font-size:24px;
 font-weight:bold;
 margin-bottom:15px;
-color:#00d4ff;
+color:#22d3ee;
 }
 
 .copy-btn{
+
 margin-top:15px;
 padding:12px 20px;
 border:none;
 border-radius:12px;
-background:#7c3aed;
-color:white;
-font-size:18px;
 cursor:pointer;
+font-size:18px;
+color:white;
+
+background:#7c3aed;
 }
 
 .footer{
 text-align:center;
 margin-top:50px;
+color:#94a3b8;
 font-size:18px;
-color:#d1d5db;
-}
-
-.loading{
-text-align:center;
-font-size:24px;
-margin-top:20px;
-color:#00ffff;
-display:none;
 }
 
 </style>
@@ -134,19 +151,28 @@ display:none;
 
 <body>
 
-<div class="title">KailasOS AI</div>
+<div class="title">
+KailasOS AI
+</div>
 
 <div class="subtitle">
 Generate Viral Captions, Hooks, Hashtags & Bios 🚀
 </div>
 
-<div class="box">
+<div class="main-box">
 
-<input type="text" id="topic" placeholder="Enter Topic">
+<input
+type="text"
+id="topic"
+placeholder="Enter Topic"
+/>
 
-<textarea id="prompt" placeholder="Describe what you want..."></textarea>
+<textarea
+id="prompt"
+placeholder="Describe what you want..."
+></textarea>
 
-<button onclick="generateContent()">
+<button onclick="generateAI()">
 Generate AI Content
 </button>
 
@@ -164,15 +190,33 @@ Powered By KailasOS AI ⚡
 
 <script>
 
-async function generateContent(){
+function copyText(text){
 
-let topic = document.getElementById("topic").value;
-let prompt = document.getElementById("prompt").value;
+navigator.clipboard.writeText(text);
 
-document.getElementById("loading").style.display = "block";
+alert("Copied Successfully 🚀");
 
-let response = await fetch("/generate",{
+}
 
+async function generateAI(){
+
+let topic =
+document.getElementById("topic").value;
+
+let prompt =
+document.getElementById("prompt").value;
+
+document.getElementById(
+"loading"
+).style.display = "block";
+
+document.getElementById(
+"results"
+).innerHTML = "";
+
+let response = await fetch(
+"/generate",
+{
 method:"POST",
 
 headers:{
@@ -188,43 +232,95 @@ prompt:prompt
 
 let data = await response.json();
 
-document.getElementById("loading").style.display = "none";
+document.getElementById(
+"loading"
+).style.display = "none";
 
-document.getElementById("results").innerHTML = `
+document.getElementById(
+"results"
+).innerHTML = `
 
-<div class="result-box">
-<div class="result-title">🔥 Viral Caption</div>
-<div>${data.caption}</div>
-<button class="copy-btn" onclick="copyText(\`${data.caption}\`)">Copy</button>
+<div class="card">
+
+<div class="card-title">
+🔥 Viral Caption
 </div>
 
-<div class="result-box">
-<div class="result-title">🎯 Hook</div>
-<div>${data.hook}</div>
-<button class="copy-btn" onclick="copyText(\`${data.hook}\`)">Copy</button>
+<div>
+${data.caption}
 </div>
 
-<div class="result-box">
-<div class="result-title">🏷️ Hashtags</div>
-<div>${data.hashtags}</div>
-<button class="copy-btn" onclick="copyText(\`${data.hashtags}\`)">Copy</button>
+<button
+class="copy-btn"
+onclick="copyText(\`${data.caption}\`)">
+
+Copy
+
+</button>
+
 </div>
 
-<div class="result-box">
-<div class="result-title">👤 Bio</div>
-<div>${data.bio}</div>
-<button class="copy-btn" onclick="copyText(\`${data.bio}\`)">Copy</button>
+<div class="card">
+
+<div class="card-title">
+🎯 Hook
+</div>
+
+<div>
+${data.hook}
+</div>
+
+<button
+class="copy-btn"
+onclick="copyText(\`${data.hook}\`)">
+
+Copy
+
+</button>
+
+</div>
+
+<div class="card">
+
+<div class="card-title">
+🏷️ Hashtags
+</div>
+
+<div>
+${data.hashtags}
+</div>
+
+<button
+class="copy-btn"
+onclick="copyText(\`${data.hashtags}\`)">
+
+Copy
+
+</button>
+
+</div>
+
+<div class="card">
+
+<div class="card-title">
+👤 Instagram Bio
+</div>
+
+<div>
+${data.bio}
+</div>
+
+<button
+class="copy-btn"
+onclick="copyText(\`${data.bio}\`)">
+
+Copy
+
+</button>
+
 </div>
 
 `;
-
-}
-
-function copyText(text){
-
-navigator.clipboard.writeText(text);
-
-alert("Copied Successfully 🚀");
 
 }
 
@@ -238,6 +334,7 @@ alert("Copied Successfully 🚀");
 
 @app.route("/")
 def home():
+
     return render_template_string(HTML)
 
 @app.route("/generate", methods=["POST"])
@@ -245,36 +342,38 @@ def generate():
 
     data = request.json
 
-    topic = data["topic"]
-    prompt = data["prompt"]
+    topic = data.get("topic","")
+    prompt = data.get("prompt","")
 
     final_prompt = f"""
 
-Topic: {topic}
+You are a viral Instagram content creator.
 
-User Request:
+TOPIC:
+{topic}
+
+USER REQUEST:
 {prompt}
 
-Create:
-
-1 Viral Caption
-1 Hook
-1 Hashtags section
-1 Instagram Bio
-
-Format exactly like this:
+Generate:
 
 Caption:
-...
+A powerful emotional viral caption.
 
 Hook:
-...
+A scroll stopping hook.
 
 Hashtags:
-...
+30 trending hashtags.
 
 Bio:
-...
+A premium Instagram bio.
+
+IMPORTANT:
+- Keep sections short and clean.
+- Use modern viral style.
+- Use emojis.
+- Follow exact format.
 
 """
 
@@ -284,20 +383,27 @@ Bio:
 
         headers={
 
-            "Authorization": f"Bearer {API_KEY}",
-            "Content-Type": "application/json"
+            "Authorization":
+            f"Bearer {API_KEY}",
+
+            "Content-Type":
+            "application/json"
 
         },
 
         json={
 
-            "model": "openai/gpt-3.5-turbo",
+            "model":
+            "openai/gpt-3.5-turbo",
 
-            "messages": [
+            "messages":[
 
                 {
-                    "role": "user",
-                    "content": final_prompt
+
+                    "role":"user",
+
+                    "content":final_prompt
+
                 }
 
             ]
@@ -310,41 +416,57 @@ Bio:
 
     print(result)
 
-    text = result["choices"][0]["message"]["content"]
-
-    caption = ""
-    hook = ""
-    hashtags = ""
-    bio = ""
+    caption = "No caption generated"
+    hook = "No hook generated"
+    hashtags = "No hashtags generated"
+    bio = "No bio generated"
 
     try:
 
-        part1 = text.split("Hook:")
-        caption = part1[0].replace("Caption:", "").strip()
+        text = result["choices"][0]["message"]["content"]
 
-        part2 = part1[1].split("Hashtags:")
-        hook = part2[0].strip()
+        sections = text.split("Hook:")
 
-        part3 = part2[1].split("Bio:")
-        hashtags = part3[0].strip()
+        caption = sections[0]\
+        .replace("Caption:","")\
+        .strip()
 
-        bio = part3[1].strip()
+        hook_part = sections[1]
 
-    except:
+        sections2 = hook_part.split(
+        "Hashtags:"
+        )
 
-        caption = text
-        hook = text
-        hashtags = text
-        bio = text
+        hook = sections2[0].strip()
+
+        hashtags_part = sections2[1]
+
+        sections3 = hashtags_part.split(
+        "Bio:"
+        )
+
+        hashtags = sections3[0].strip()
+
+        bio = sections3[1].strip()
+
+    except Exception as e:
+
+        print(e)
+
+        caption = str(result)
 
     return jsonify({
 
-        "caption": caption,
-        "hook": hook,
-        "hashtags": hashtags,
-        "bio": bio
+        "caption":caption,
+        "hook":hook,
+        "hashtags":hashtags,
+        "bio":bio
 
     })
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+
+    app.run(
+        debug=True,
+        host="0.0.0.0"
+    )
