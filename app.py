@@ -4,177 +4,164 @@ import os
 
 app = Flask(__name__)
 
-API_KEY = os.getenv("OPENROUTER_API_KEY")
+API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 HTML = """
-
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <title>KailasOS AI</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-
 body{
-background:#020617;
-font-family:Arial;
-margin:0;
-padding:20px;
-color:white;
+    margin:0;
+    padding:0;
+    background:#020b2d;
+    font-family:Arial;
+    color:white;
+}
+
+.container{
+    width:90%;
+    margin:auto;
+    padding-top:40px;
+    padding-bottom:50px;
 }
 
 .title{
-font-size:60px;
-font-weight:bold;
-text-align:center;
-margin-top:30px;
-
-background:linear-gradient(90deg,#00e5ff,#8b5cf6);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
+    text-align:center;
+    font-size:60px;
+    font-weight:bold;
+    background:linear-gradient(90deg,#00e5ff,#7c4dff);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
 }
 
 .subtitle{
-text-align:center;
-font-size:22px;
-margin-top:20px;
-margin-bottom:40px;
-color:#cbd5e1;
-}
-
-.main-box{
-background:#08122e;
-padding:30px;
-border-radius:30px;
-max-width:800px;
-margin:auto;
-box-shadow:0 0 30px rgba(0,255,255,0.15);
-}
-
-input, textarea{
-
-width:100%;
-padding:20px;
-border:none;
-border-radius:20px;
-background:#0f172a;
-color:white;
-font-size:20px;
-margin-bottom:20px;
-box-sizing:border-box;
-outline:none;
-}
-
-textarea{
-height:200px;
-resize:none;
-}
-
-button{
-
-width:100%;
-padding:20px;
-border:none;
-border-radius:20px;
-font-size:22px;
-font-weight:bold;
-cursor:pointer;
-color:white;
-
-background:linear-gradient(
-90deg,
-#06b6d4,
-#8b5cf6
-);
-
-}
-
-button:hover{
-opacity:0.9;
-}
-
-.loading{
-display:none;
-text-align:center;
-margin-top:20px;
-font-size:22px;
-color:#00ffff;
+    text-align:center;
+    font-size:22px;
+    margin-top:10px;
+    color:#ddd;
 }
 
 .card{
-
-background:#0f172a;
-padding:25px;
-border-radius:25px;
-margin-top:25px;
-
-box-shadow:
-0 0 20px rgba(0,255,255,0.08);
+    background:#06133d;
+    border-radius:30px;
+    padding:25px;
+    margin-top:30px;
+    box-shadow:0 0 25px rgba(0,255,255,0.2);
 }
 
-.card-title{
+input, textarea{
+    width:100%;
+    background:#0b1b4f;
+    border:none;
+    color:white;
+    padding:18px;
+    border-radius:20px;
+    font-size:22px;
+    margin-top:15px;
+    box-sizing:border-box;
+}
 
-font-size:24px;
-font-weight:bold;
-margin-bottom:15px;
-color:#22d3ee;
+textarea{
+    height:180px;
+    resize:none;
+}
+
+button{
+    width:100%;
+    border:none;
+    margin-top:25px;
+    padding:22px;
+    border-radius:20px;
+    font-size:24px;
+    font-weight:bold;
+    color:white;
+    cursor:pointer;
+    background:linear-gradient(90deg,#00d9ff,#d500f9);
+}
+
+.result-box{
+    margin-top:25px;
+    background:#08143d;
+    padding:25px;
+    border-radius:25px;
+}
+
+.result-title{
+    font-size:26px;
+    font-weight:bold;
+    color:#00d9ff;
+    margin-bottom:15px;
+}
+
+.result-text{
+    font-size:20px;
+    line-height:1.5;
+    white-space:pre-wrap;
 }
 
 .copy-btn{
+    margin-top:20px;
+    background:linear-gradient(90deg,#7c3aed,#a855f7);
+    padding:16px;
+    border-radius:18px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+}
 
-margin-top:15px;
-padding:12px 20px;
-border:none;
-border-radius:12px;
-cursor:pointer;
-font-size:18px;
-color:white;
-
-background:#7c3aed;
+.loading{
+    text-align:center;
+    margin-top:20px;
+    font-size:22px;
+    color:#00e5ff;
+    display:none;
 }
 
 .footer{
-text-align:center;
-margin-top:50px;
-color:#94a3b8;
-font-size:18px;
+    text-align:center;
+    margin-top:40px;
+    color:#aaa;
+    font-size:20px;
 }
 
-</style>
+@media(max-width:600px){
+    .title{
+        font-size:48px;
+    }
 
+    .subtitle{
+        font-size:18px;
+    }
+
+    input, textarea{
+        font-size:20px;
+    }
+
+    button{
+        font-size:22px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<div class="title">
-KailasOS AI
-</div>
+<div class="container">
 
-<div class="subtitle">
-Generate Viral Captions, Hooks, Hashtags & Bios 🚀
-</div>
+<div class="title">KailasOS AI</div>
+<div class="subtitle">Generate Viral Captions, Hooks, Hashtags & Bios 🚀</div>
 
-<div class="main-box">
+<div class="card">
 
-<input
-type="text"
-id="topic"
-placeholder="Enter Topic"
-/>
+<input type="text" id="niche" placeholder="Enter niche e.g Gaming">
 
-<textarea
-id="prompt"
-placeholder="Describe what you want..."
-></textarea>
+<textarea id="prompt" placeholder="Describe what you want..."></textarea>
 
-<button onclick="generateAI()">
-Generate AI Content
-</button>
+<button onclick="generateContent()">Generate AI Content</button>
 
 <div class="loading" id="loading">
 Generating Viral Content... 🚀
@@ -188,285 +175,191 @@ Generating Viral Content... 🚀
 Powered By KailasOS AI ⚡
 </div>
 
+</div>
+
 <script>
 
-function copyText(text){
+function copyText(id){
+    const element = document.getElementById(id);
 
-navigator.clipboard.writeText(text);
+    if(!element){
+        alert("Content not found");
+        return;
+    }
 
-alert("Copied Successfully 🚀");
+    const text = element.innerText;
 
+    navigator.clipboard.writeText(text)
+    .then(()=>{
+        alert("Copied Successfully ✅");
+    })
+    .catch(()=>{
+        alert("Copy Failed ❌");
+    });
 }
 
-async function generateAI(){
+async function generateContent(){
 
-let topic =
-document.getElementById("topic").value;
+    let niche = document.getElementById("niche").value;
+    let prompt = document.getElementById("prompt").value;
 
-let prompt =
-document.getElementById("prompt").value;
+    document.getElementById("loading").style.display = "block";
 
-document.getElementById(
-"loading"
-).style.display = "block";
+    const response = await fetch("/generate",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            niche:niche,
+            prompt:prompt
+        })
+    });
 
-document.getElementById(
-"results"
-).innerHTML = "";
+    const data = await response.json();
 
-let response = await fetch(
-"/generate",
-{
-method:"POST",
+    document.getElementById("loading").style.display = "none";
 
-headers:{
-"Content-Type":"application/json"
-},
+    document.getElementById("results").innerHTML = `
 
-body:JSON.stringify({
-topic:topic,
-prompt:prompt
-})
+    <div class="result-box">
+        <div class="result-title">🔥 Viral Caption</div>
+        <div class="result-text" id="captionText">${data.caption}</div>
+        <button class="copy-btn" onclick="copyText('captionText')">Copy</button>
+    </div>
 
-});
+    <div class="result-box">
+        <div class="result-title">🎯 Hook</div>
+        <div class="result-text" id="hookText">${data.hook}</div>
+        <button class="copy-btn" onclick="copyText('hookText')">Copy</button>
+    </div>
 
-let data = await response.json();
+    <div class="result-box">
+        <div class="result-title">🏷️ Hashtags</div>
+        <div class="result-text" id="hashtagText">${data.hashtags}</div>
+        <button class="copy-btn" onclick="copyText('hashtagText')">Copy</button>
+    </div>
 
-document.getElementById(
-"loading"
-).style.display = "none";
+    <div class="result-box">
+        <div class="result-title">👤 Instagram Bio</div>
+        <div class="result-text" id="bioText">${data.bio}</div>
+        <button class="copy-btn" onclick="copyText('bioText')">Copy</button>
+    </div>
 
-document.getElementById(
-"results"
-).innerHTML = `
-
-<div class="card">
-
-<div class="card-title">
-🔥 Viral Caption
-</div>
-
-<div>
-${data.caption}
-</div>
-
-<button
-class="copy-btn"
-onclick="copyText(\`${data.caption}\`)">
-
-Copy
-
-</button>
-
-</div>
-
-<div class="card">
-
-<div class="card-title">
-🎯 Hook
-</div>
-
-<div>
-${data.hook}
-</div>
-
-<button
-class="copy-btn"
-onclick="copyText(\`${data.hook}\`)">
-
-Copy
-
-</button>
-
-</div>
-
-<div class="card">
-
-<div class="card-title">
-🏷️ Hashtags
-</div>
-
-<div>
-${data.hashtags}
-</div>
-
-<button
-class="copy-btn"
-onclick="copyText(\`${data.hashtags}\`)">
-
-Copy
-
-</button>
-
-</div>
-
-<div class="card">
-
-<div class="card-title">
-👤 Instagram Bio
-</div>
-
-<div>
-${data.bio}
-</div>
-
-<button
-class="copy-btn"
-onclick="copyText(\`${data.bio}\`)">
-
-Copy
-
-</button>
-
-</div>
-
-`;
-
+    `;
 }
 
 </script>
 
 </body>
-
 </html>
-
 """
 
 @app.route("/")
 def home():
-
     return render_template_string(HTML)
 
 @app.route("/generate", methods=["POST"])
 def generate():
 
-    data = request.json
+    data = request.get_json()
 
-    topic = data.get("topic","")
-    prompt = data.get("prompt","")
+    niche = data.get("niche")
+    prompt = data.get("prompt")
 
-    final_prompt = f"""
+    final_prompt = f'''
+    Niche: {niche}
 
-You are a viral Instagram content creator.
+    User Request:
+    {prompt}
 
-TOPIC:
-{topic}
+    Generate:
+    1 Viral Caption
+    1 Hook
+    20 Hashtags
+    1 Instagram Bio
 
-USER REQUEST:
-{prompt}
-
-Generate:
-
-Caption:
-A powerful emotional viral caption.
-
-Hook:
-A scroll stopping hook.
-
-Hashtags:
-30 trending hashtags.
-
-Bio:
-A premium Instagram bio.
-
-IMPORTANT:
-- Keep sections short and clean.
-- Use modern viral style.
-- Use emojis.
-- Follow exact format.
-
-"""
+    Make everything highly viral and attractive.
+    '''
 
     response = requests.post(
-
         "https://openrouter.ai/api/v1/chat/completions",
-
         headers={
-
-            "Authorization":
-            f"Bearer {API_KEY}",
-
-            "Content-Type":
-            "application/json"
-
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json"
         },
-
         json={
-
-            "model":
-            "openai/gpt-3.5-turbo",
-
-            "messages":[
-
+            "model": "openai/gpt-3.5-turbo",
+            "messages": [
                 {
-
-                    "role":"user",
-
-                    "content":final_prompt
-
+                    "role": "user",
+                    "content": final_prompt
                 }
-
             ]
-
         }
-
     )
 
     result = response.json()
 
     print(result)
 
-    caption = "No caption generated"
-    hook = "No hook generated"
-    hashtags = "No hashtags generated"
-    bio = "No bio generated"
+    if "choices" in result:
+        content = result["choices"][0]["message"]["content"]
+    else:
+        return jsonify({
+            "caption":"API Error",
+            "hook":"API Error",
+            "hashtags":"API Error",
+            "bio":"API Error"
+        })
 
-    try:
+    lines = content.split("\n")
 
-        text = result["choices"][0]["message"]["content"]
+    caption = ""
+    hook = ""
+    hashtags = ""
+    bio = ""
 
-        sections = text.split("Hook:")
+    mode = ""
 
-        caption = sections[0]\
-        .replace("Caption:","")\
-        .strip()
+    for line in lines:
 
-        hook_part = sections[1]
+        low = line.lower()
 
-        sections2 = hook_part.split(
-        "Hashtags:"
-        )
+        if "caption" in low:
+            mode = "caption"
+            continue
 
-        hook = sections2[0].strip()
+        elif "hook" in low:
+            mode = "hook"
+            continue
 
-        hashtags_part = sections2[1]
+        elif "hashtag" in low:
+            mode = "hashtags"
+            continue
 
-        sections3 = hashtags_part.split(
-        "Bio:"
-        )
+        elif "bio" in low:
+            mode = "bio"
+            continue
 
-        hashtags = sections3[0].strip()
+        if mode == "caption":
+            caption += line + "\n"
 
-        bio = sections3[1].strip()
+        elif mode == "hook":
+            hook += line + "\n"
 
-    except Exception as e:
+        elif mode == "hashtags":
+            hashtags += line + "\n"
 
-        print(e)
-
-        caption = str(result)
+        elif mode == "bio":
+            bio += line + "\n"
 
     return jsonify({
-
-        "caption":caption,
-        "hook":hook,
-        "hashtags":hashtags,
-        "bio":bio
-
+        "caption": caption,
+        "hook": hook,
+        "hashtags": hashtags,
+        "bio": bio
     })
 
 if __name__ == "__main__":
-
-    app.run(
-        debug=True,
-        host="0.0.0.0"
-    )
+    app.run(debug=True, host="0.0.0.0")
