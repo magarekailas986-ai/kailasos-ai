@@ -8,6 +8,7 @@ def home():
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>KailasOS AI</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,7 +19,7 @@ body{
     margin:0;
     padding:0;
     background:#020b2b;
-    font-family:Arial;
+    font-family:Arial,sans-serif;
     color:white;
 }
 
@@ -34,7 +35,6 @@ body{
     font-size:55px;
     font-weight:bold;
     margin-top:40px;
-
     background:linear-gradient(90deg,#00d2ff,#7f5cff);
     -webkit-background-clip:text;
     -webkit-text-fill-color:transparent;
@@ -42,9 +42,9 @@ body{
 
 .subtitle{
     text-align:center;
-    font-size:18px;
+    font-size:20px;
     margin-top:10px;
-    color:#d7d7d7;
+    color:#cccccc;
 }
 
 .card{
@@ -52,11 +52,12 @@ body{
     padding:25px;
     border-radius:25px;
     margin-top:35px;
-    box-shadow:0 0 25px rgba(0,200,255,0.2);
+    box-shadow:0 0 25px rgba(0,200,255,0.15);
 }
 
 input, textarea{
     width:100%;
+    box-sizing:border-box;
     background:#0b1a52;
     border:none;
     border-radius:20px;
@@ -65,7 +66,6 @@ input, textarea{
     font-size:20px;
     margin-bottom:20px;
     outline:none;
-    box-sizing:border-box;
 }
 
 textarea{
@@ -73,7 +73,7 @@ textarea{
     resize:none;
 }
 
-button{
+.main-btn{
     width:100%;
     border:none;
     padding:20px;
@@ -82,7 +82,6 @@ button{
     font-weight:bold;
     color:white;
     cursor:pointer;
-
     background:linear-gradient(90deg,#00d2ff,#d400ff);
 }
 
@@ -91,26 +90,34 @@ button{
     padding:25px;
     border-radius:25px;
     margin-top:30px;
+    box-shadow:0 0 18px rgba(0,255,255,0.08);
 }
 
 .result-title{
-    font-size:22px;
+    font-size:28px;
     font-weight:bold;
     color:#00d2ff;
     margin-bottom:15px;
 }
 
 .result-text{
-    font-size:20px;
-    line-height:1.6;
+    font-size:22px;
+    line-height:1.7;
     white-space:pre-wrap;
+    word-wrap:break-word;
 }
 
 .copy-btn{
+    width:100%;
     margin-top:20px;
-    background:linear-gradient(90deg,#6a11cb,#a044ff);
+    border:none;
     padding:16px;
-    font-size:18px;
+    border-radius:18px;
+    font-size:20px;
+    font-weight:bold;
+    color:white;
+    cursor:pointer;
+    background:linear-gradient(90deg,#6a11cb,#a044ff);
 }
 
 .footer{
@@ -121,14 +128,24 @@ button{
     font-size:18px;
 }
 
+.loading{
+    text-align:center;
+    font-size:22px;
+    margin-top:25px;
+    color:#00d2ff;
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<div class="title">KailasOS AI</div>
+<div class="title">
+KailasOS AI
+</div>
 
 <div class="subtitle">
 Generate Viral Captions, Hooks, Hashtags & Bios 🚀
@@ -136,15 +153,26 @@ Generate Viral Captions, Hooks, Hashtags & Bios 🚀
 
 <div class="card">
 
-<input type="text" id="topic" placeholder="Enter topic">
+<input
+type="text"
+id="topic"
+placeholder="Enter Topic"
+/>
 
-<textarea id="prompt" placeholder="Describe what you want..."></textarea>
+<textarea
+id="prompt"
+placeholder="Describe what you want..."
+></textarea>
 
-<button onclick="generateContent()">
+<button
+class="main-btn"
+onclick="generateContent()">
 Generate AI Content
 </button>
 
 </div>
+
+<div id="loading"></div>
 
 <div id="results"></div>
 
@@ -158,98 +186,142 @@ Powered By KailasOS AI ⚡
 
 function copyText(text){
 
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text)
+    .then(function(){
+        alert("Copied Successfully!");
+    });
 
-    alert("Copied Successfully!");
 }
 
 async function generateContent(){
 
     let topic = document.getElementById("topic").value;
+
     let prompt = document.getElementById("prompt").value;
 
+    document.getElementById("loading").innerHTML =
+    '<div class="loading">Generating AI Content... 🚀</div>';
+
+    document.getElementById("results").innerHTML = "";
+
     let response = await fetch("/generate",{
+
         method:"POST",
+
         headers:{
             "Content-Type":"application/json"
         },
+
         body:JSON.stringify({
             topic:topic,
             prompt:prompt
         })
+
     });
 
     let data = await response.json();
 
+    document.getElementById("loading").innerHTML = "";
+
     document.getElementById("results").innerHTML = `
 
-<div class="result-card">
+    <div class="result-card">
 
-<div class="result-title">🔥 Viral Caption</div>
+        <div class="result-title">
+        🔥 Viral Caption
+        </div>
 
-<div class="result-text">
-${data.caption}
-</div>
+        <div class="result-text">
+        ${data.caption}
+        </div>
 
-<button class="copy-btn"
-onclick='copyText(${JSON.stringify("${data.caption}")})'>
-Copy
-</button>
+        <button
+        class="copy-btn"
+        onclick='copyText(${JSON.stringify("CAPTION_PLACEHOLDER")})'>
+        Copy
+        </button>
 
-</div>
+    </div>
 
+    <div class="result-card">
 
+        <div class="result-title">
+        🎯 Hook
+        </div>
 
-<div class="result-card">
+        <div class="result-text">
+        ${data.hook}
+        </div>
 
-<div class="result-title">🎯 Hook</div>
+        <button
+        class="copy-btn"
+        onclick='copyText(${JSON.stringify("HOOK_PLACEHOLDER")})'>
+        Copy
+        </button>
 
-<div class="result-text">
-${data.hook}
-</div>
+    </div>
 
-<button class="copy-btn"
-onclick='copyText(${JSON.stringify("${data.hook}")})'>
-Copy
-</button>
+    <div class="result-card">
 
-</div>
+        <div class="result-title">
+        🏷️ Hashtags
+        </div>
 
+        <div class="result-text">
+        ${data.hashtags}
+        </div>
 
+        <button
+        class="copy-btn"
+        onclick='copyText(${JSON.stringify("HASHTAGS_PLACEHOLDER")})'>
+        Copy
+        </button>
 
-<div class="result-card">
+    </div>
 
-<div class="result-title">🏷️ Hashtags</div>
+    <div class="result-card">
 
-<div class="result-text">
-${data.hashtags}
-</div>
+        <div class="result-title">
+        👤 Instagram Bio
+        </div>
 
-<button class="copy-btn"
-onclick='copyText(${JSON.stringify("${data.hashtags}")})'>
-Copy
-</button>
+        <div class="result-text">
+        ${data.bio}
+        </div>
 
-</div>
+        <button
+        class="copy-btn"
+        onclick='copyText(${JSON.stringify("BIO_PLACEHOLDER")})'>
+        Copy
+        </button>
 
+    </div>
 
+    `;
 
-<div class="result-card">
+    document.querySelectorAll(".copy-btn")[0]
+    .setAttribute(
+        "onclick",
+        "copyText(" + JSON.stringify(data.caption) + ")"
+    );
 
-<div class="result-title">👤 Instagram Bio</div>
+    document.querySelectorAll(".copy-btn")[1]
+    .setAttribute(
+        "onclick",
+        "copyText(" + JSON.stringify(data.hook) + ")"
+    );
 
-<div class="result-text">
-${data.bio}
-</div>
+    document.querySelectorAll(".copy-btn")[2]
+    .setAttribute(
+        "onclick",
+        "copyText(" + JSON.stringify(data.hashtags) + ")"
+    );
 
-<button class="copy-btn"
-onclick='copyText(${JSON.stringify("${data.bio}")})'>
-Copy
-</button>
-
-</div>
-
-`;
+    document.querySelectorAll(".copy-btn")[3]
+    .setAttribute(
+        "onclick",
+        "copyText(" + JSON.stringify(data.bio) + ")"
+    );
 
 }
 
@@ -259,20 +331,19 @@ Copy
 </html>
 """
 
-
 @app.route("/generate", methods=["POST"])
 def generate():
 
     data = request.json
 
-    topic = data.get("topic", "")
-    prompt = data.get("prompt", "")
+    topic = data.get("topic","")
+    prompt = data.get("prompt","")
 
-    caption = f'"Dare to stand out in the world of {topic}! 🚀🔥"'
+    caption = f"Dare to stand out in the world of {topic}! 🚀🔥"
 
-    hook = f'"Stop scrolling! The future of {topic} starts here 😎⚡"'
+    hook = f"Stop scrolling! The future of {topic} starts here 😎⚡"
 
-    hashtags = f"""
+    hashtags = f'''
 #{topic.replace(" ","")}
 #Viral
 #Trending
@@ -280,13 +351,12 @@ def generate():
 #ContentCreator
 #ExplorePage
 #Reels
-#ViralContent
 #SocialMedia
 #Growth
 #AI
-"""
+'''
 
-    bio = f"""
+    bio = f'''
 🚀 Passionate about {topic}
 
 🔥 Creating viral content daily
@@ -296,15 +366,14 @@ def generate():
 📩 DM for collaborations
 
 🌎 Dream Big. Create Bigger.
-"""
+'''
 
     return jsonify({
-        "caption": caption,
-        "hook": hook,
-        "hashtags": hashtags,
-        "bio": bio
+        "caption":caption,
+        "hook":hook,
+        "hashtags":hashtags,
+        "bio":bio
     })
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
