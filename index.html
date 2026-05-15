@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>KailasOS AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+background:#020b3a;
+font-family:Arial;
+color:white;
+padding:20px;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+}
+
+h1{
+font-size:55px;
+text-align:center;
+background:linear-gradient(to right,#00d4ff,#a855f7);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.card{
+background:#08124f;
+padding:20px;
+border-radius:20px;
+margin-top:20px;
+box-shadow:0 0 20px rgba(0,255,255,0.2);
+}
+
+textarea,input{
+width:100%;
+padding:15px;
+border:none;
+border-radius:15px;
+margin-top:10px;
+background:#111c66;
+color:white;
+font-size:18px;
+}
+
+button{
+width:100%;
+padding:18px;
+margin-top:20px;
+border:none;
+border-radius:20px;
+font-size:22px;
+font-weight:bold;
+cursor:pointer;
+background:linear-gradient(to right,#00d4ff,#ff00ff);
+color:white;
+}
+
+.result{
+margin-top:20px;
+white-space:pre-wrap;
+font-size:20px;
+line-height:1.7;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>KailasOS AI</h1>
+
+<div class="card">
+
+<input id="topic" placeholder="Topic">
+
+<textarea id="prompt" rows="6" placeholder="Describe your content"></textarea>
+
+<button onclick="generateContent()">
+Generate AI Content
+</button>
+
+</div>
+
+<div class="card">
+<h2>🔥 Viral Caption</h2>
+<div class="result" id="caption"></div>
+</div>
+
+<div class="card">
+<h2>🎯 Hook</h2>
+<div class="result" id="hook"></div>
+</div>
+
+<div class="card">
+<h2>🏷️ Hashtags</h2>
+<div class="result" id="hashtags"></div>
+</div>
+
+<div class="card">
+<h2>👤 Instagram Bio</h2>
+<div class="result" id="bio"></div>
+</div>
+
+</div>
+
+<script>
+
+async function generateContent(){
+
+let topic=document.getElementById("topic").value;
+let prompt=document.getElementById("prompt").value;
+
+let response=await fetch("/generate",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+topic:topic,
+prompt:prompt
+})
+});
+
+let data=await response.json();
+
+document.getElementById("caption").innerText=data.caption;
+document.getElementById("hook").innerText=data.hook;
+document.getElementById("hashtags").innerText=data.hashtags;
+document.getElementById("bio").innerText=data.bio;
+
+}
+
+</script>
+
+</body>
+</html>
